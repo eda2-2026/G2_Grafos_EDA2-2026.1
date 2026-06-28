@@ -6,6 +6,348 @@
 <title>Campo Minado — Operação Limpeza</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12160F;
+    --bg-2:#0E110C;
+    --panel:#1B2116;
+    --panel-2:#212A1B;
+    --line:#384330;
+    --line-soft:#2A3324;
+    --khaki:#C7B88A;
+    --khaki-dim:#8B8466;
+    --amber:#E2A33D;
+    --danger:#C1432E;
+    --ok:#7AAE63;
+    --ink:#EDE8DC;
+    --ink-dim:#9AA08C;
+    --stencil:'Big Shoulders Stencil', sans-serif;
+    --mono:'Space Mono', monospace;
+    --cell: 30px;
+    --label: 22px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color:var(--ink);
+    font-family:var(--mono);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 16px 60px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header.briefing{
+    text-align:center;
+    margin-bottom:22px;
+    max-width:560px;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.22em;
+    color:var(--amber);
+    margin:0 0 6px;
+    text-transform:uppercase;
+  }
+  .title{
+    font-family:var(--stencil);
+    font-weight:800;
+    font-size:clamp(40px,9vw,64px);
+    letter-spacing:.04em;
+    margin:0;
+    color:var(--ink);
+    text-shadow: 2px 2px 0 var(--bg-2);
+  }
+  .subtitle{
+    font-size:13px;
+    color:var(--ink-dim);
+    margin:8px 0 0;
+    line-height:1.5;
+  }
+
+  /* ---------- PANELS ---------- */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:22px;
+    width:100%;
+    max-width:560px;
+  }
+  .panel-label{
+    font-size:11px;
+    letter-spacing:.18em;
+    color:var(--khaki-dim);
+    text-transform:uppercase;
+    margin:0 0 16px;
+    text-align:center;
+  }
+
+  /* ---------- MISSION SELECT ---------- */
+  .mission-cards{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .mission-card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-left:4px solid var(--khaki-dim);
+    color:var(--ink);
+    font-family:var(--mono);
+    padding:14px 16px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .15s ease, transform .1s ease, background .15s ease;
+  }
+  .mission-card:hover{
+    border-left-color:var(--amber);
+    background:#252f1d;
+  }
+  .mission-card:active{ transform:scale(.99); }
+  .mission-card:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+  .mission-rank{
+    font-size:10px;
+    letter-spacing:.14em;
+    color:var(--amber);
+    text-transform:uppercase;
+    min-width:108px;
+  }
+  .mission-name{
+    font-family:var(--stencil);
+    font-weight:700;
+    font-size:20px;
+    flex:1;
+    text-align:left;
+  }
+  .mission-stats{
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+
+  /* ---------- GAME SCREEN ---------- */
+  .game-panel{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+
+  .hud{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .hud-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:14px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    padding:6px 10px;
+    border-radius:3px;
+    min-width:64px;
+    justify-content:center;
+  }
+  .hud-reset{
+    font-family:var(--stencil);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.06em;
+    background:var(--danger);
+    color:var(--ink);
+    border:1px solid #8c2d1c;
+    border-radius:3px;
+    padding:8px 14px;
+    cursor:pointer;
+  }
+  .hud-reset:hover{ filter:brightness(1.1); }
+  .hud-reset:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  .mode-toggle{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    width:100%;
+  }
+  .mode-btn{
+    flex:1;
+    background:var(--panel-2);
+    color:var(--ink-dim);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.1em;
+    border:none;
+    padding:9px 0;
+    cursor:pointer;
+  }
+  .mode-btn.active{
+    background:var(--khaki);
+    color:var(--bg-2);
+    font-weight:700;
+  }
+  .mode-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:-2px; }
+
+  .board-wrap{
+    width:100%;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .board-grid{
+    display:inline-grid;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .label-cell{
+    width:var(--cell);
+    height:var(--label);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:var(--khaki-dim);
+    background:var(--bg-2);
+  }
+  .label-cell.corner{ width:var(--label); }
+  .row-label{
+    width:var(--label);
+    height:var(--cell);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:var(--khaki-dim);
+    background:var(--bg-2);
+  }
+
+  .cell{
+    width:var(--cell);
+    height:var(--cell);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:calc(var(--cell) * 0.46);
+    font-weight:700;
+    background:var(--panel-2);
+    color:var(--ink);
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:manipulation;
+  }
+  .cell.closed{ background:#2A3420; }
+  .cell.closed:hover{ background:#33401F; }
+  .cell.revealed{ background:#171C12; cursor:default; }
+  .cell.flagged{ background:#2A3420; }
+  .cell.bomb-revealed{ background:#2A1712; }
+  .cell.bomb-exploded{ background:var(--danger); }
+  .cell:focus-visible{ outline:2px solid var(--amber); outline-offset:-2px; z-index:1; }
+
+  .n1{ color:#7FA8C9; } .n2{ color:#7AAE63; } .n3{ color:#C1432E; }
+  .n4{ color:#A07FC9; } .n5{ color:#B07A45; } .n6{ color:#4FAFAF; }
+  .n7{ color:#EDE8DC; } .n8{ color:#9AA08C; }
+
+  .back-btn{
+    background:none;
+    border:none;
+    color:var(--ink-dim);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.06em;
+    cursor:pointer;
+    padding:4px;
+  }
+  .back-btn:hover{ color:var(--khaki); }
+  .back-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  /* ---------- OVERLAY / MISSION REPORT ---------- */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,12,8,0.78);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:10;
+  }
+  .report-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:32px 28px;
+    text-align:center;
+    max-width:360px;
+    width:100%;
+    position:relative;
+  }
+  .stamp{
+    font-family:var(--stencil);
+    font-weight:800;
+    font-size:clamp(30px,7vw,42px);
+    letter-spacing:.06em;
+    border:4px solid currentColor;
+    border-radius:6px;
+    padding:8px 14px;
+    display:inline-block;
+    transform:rotate(-6deg);
+    margin-bottom:18px;
+    animation: stamp-in .28s ease-out;
+  }
+  .stamp.win{ color:var(--ok); }
+  .stamp.lose{ color:var(--danger); }
+  @keyframes stamp-in{
+    0%{ transform:rotate(-6deg) scale(1.7); opacity:0; }
+    100%{ transform:rotate(-6deg) scale(1); opacity:1; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .stamp{ animation:none; }
+  }
+  .report-text{
+    font-size:13px;
+    color:var(--ink-dim);
+    line-height:1.6;
+    margin:0 0 22px;
+  }
+  .play-again{
+    font-family:var(--stencil);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:.05em;
+    background:var(--amber);
+    color:var(--bg-2);
+    border:none;
+    border-radius:3px;
+    padding:11px 22px;
+    cursor:pointer;
+  }
+  .play-again:hover{ filter:brightness(1.08); }
+  .play-again:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+
+  .hidden{ display:none !important; }
+
+  footer.note{
+    margin-top:26px;
+    font-size:11px;
+    color:var(--khaki-dim);
+    text-align:center;
+    max-width:420px;
+    line-height:1.6;
+  }
+</style>
 </head>
 <body>
 
