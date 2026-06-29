@@ -51,16 +51,24 @@ void print_json(int max, void *ptr, int num_bombas, int flags_placed, int status
     fflush(stdout);
 }
 
-void print_hint_json(int tamanho, Vertice caminho[])
+void print_hint_json(int qtd_rotas, Rota rotas[])
 {
-    printf("{\"type\": \"hint\", \"path\": [");
-    for (int i = 0; i < tamanho; i++)
+    printf("{\"type\": \"hint\", \"paths\": [");
+    for (int r = 0; r < qtd_rotas; r++)
     {
-        printf("{\"r\": %d, \"c\": %d}", caminho[i].linha, caminho[i].coluna);
-        if (i < tamanho - 1)
+        printf("[");
+        for (int i = 0; i < rotas[r].tamanho; i++)
+        {
+            printf("{\"r\": %d, \"c\": %d}", rotas[r].passos[i].linha, rotas[r].passos[i].coluna);
+            if (i < rotas[r].tamanho - 1)
+                printf(",");
+        }
+        printf("]");
+        if (r < qtd_rotas - 1)
             printf(",");
     }
     printf("]}\n");
+
     fflush(stdout);
 }
 
@@ -190,23 +198,28 @@ int main()
             }
             print_json(max, matriz_ptr, num_bombas, flags_placed, status, last_r, last_c);
         }
+        // Dentro do while principal de campo_engine.c
         else if (strncmp(cmd, "HINT", 4) == 0)
         {
-            int r, c;
-            sscanf(cmd, "HINT %d %d", &r, &c);
+            int r, c, x;
+            if (sscanf(cmd, "HINT %d %d %d", &r, &c, &x) == 3)
+            {
+                if (status == 0 && matriz_ptr != NULL && r >= 0 && r < max && c >= 0 && c < max)
+                {
+                    casa(*matriz)[max] = matriz_ptr;
+                    Vertice inicio = {r, c};
+                    Rota rotas[10];
 
-            if (status == 0 && matriz_ptr != NULL && r >= 0 && r < max && c >= 0 && c < max)
-            {
-                casa(*matriz)[max] = matriz_ptr;
-                Vertice inicio = {r, c};
-                Vertice caminho[400];
-                int tamanho = buscar_caminho_bomba_bfs(max, matriz, inicio, caminho);
-                print_hint_json(tamanho, caminho);
-            }
-            else
-            {
-                printf("{\"error\": \"Movimento invalido ou jogo encerrado\"}\n");
-                fflush(stdout);
+                    // Chama a sua nova função de Dijkstra!
+                    int qtd_achada = buscar_X_caminhos_dijkstra(max, matriz, inicio, x, rotas);
+
+                    print_hint_json(qtd_achada, rotas);
+                }
+                else
+                {
+                    printf("{\"error\": \"Movimento invalido ou jogo encerrado\"}\n");
+                    fflush(stdout);
+                }
             }
         }
         else if (strncmp(cmd, "STATE", 5) == 0)

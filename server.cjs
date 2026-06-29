@@ -55,7 +55,7 @@ engine.stdout.on('data', (chunk) => {
     if (!payload.error && payload.type !== 'hint') {
       currentState = payload;
     }
-    
+
     const resolve = pending.shift();
     if (resolve) resolve(payload);
   }
@@ -155,13 +155,12 @@ const server = http.createServer(async (req, res) => {
       sendJson(res, 200, await sendCommand(`FLAG ${Number(body.row)} ${Number(body.col)}`));
       return;
     }
-
     if (req.method === 'POST' && url.pathname === '/api/hint') {
       const body = await readJson(req);
-      sendJson(res, 200, await sendCommand(`HINT ${Number(body.row)} ${Number(body.col)}`));
+      const quantidade = body.x || 3; // Define 3 bombas como padrão
+      sendJson(res, 200, await sendCommand(`HINT ${Number(body.row)} ${Number(body.col)} ${quantidade}`));
       return;
     }
-
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Rota nao encontrada.');
   } catch (error) {

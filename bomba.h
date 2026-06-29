@@ -22,10 +22,15 @@ typedef struct {
 } Aresta;
 
 typedef struct {
-    Vertice dados[400]; // 20x20 = 400 é o tamanho máximo do nosso grafo
+    Vertice dados[400];
     int inicio;
     int fim;
 } Fila;
+
+typedef struct {
+    int tamanho;
+    Vertice passos[400];
+} Rota;
 
 int vertice_valido(int MAX, Vertice vertice);
 int obter_arestas_do_vertice(int MAX, Vertice origem, Aresta arestas[8]);
@@ -41,6 +46,5 @@ void enfileirar(Fila *f, Vertice v);
 Vertice desenfileirar(Fila *f);
 int fila_vazia(Fila *f);
 
-int buscar_caminho_bomba_bfs(int MAX, casa matrix[MAX][MAX], Vertice inicio, Vertice caminho_encontrado[]);
-
+int buscar_X_caminhos_dijkstra(int MAX, casa matrix[MAX][MAX], Vertice inicio, int qtd_desejada, Rota rotas_encontradas[]);
 #endif
